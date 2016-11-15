@@ -64,10 +64,10 @@ function cropScreenshot([rect, screenshot]) {
         return Promise.resolve(null);
     }
     var cropConfig = {
-        left: Math.round(rect.left),
-        top: Math.round(rect.top),
-        width: Math.round(rect.width),
-        height: Math.round(rect.height)
+        left: Math.round(rect.left * rect.devicePixelRatio),
+        top: Math.round(rect.top * rect.devicePixelRatio),
+        width: Math.round(rect.width * rect.devicePixelRatio),
+        height: Math.round(rect.height * rect.devicePixelRatio)
     };
     return new Promise(resolve => {
         pngCrop.cropToStream(screenshot, cropConfig, (err, outputStream) => {
@@ -124,9 +124,10 @@ function getElementBoundingRect(elementSelector) {
     /**
      * @param {HTMLElement} element
      * @param {Object} frameOffset
+     * @param {Window} win
      * @returns {Object}
      */
-    function computeElementRect(element, frameOffset) {
+    function computeElementRect(element, frameOffset, win) {
         var rect = element.getBoundingClientRect();
 
         return {
@@ -135,14 +136,15 @@ function getElementBoundingRect(elementSelector) {
             top: rect.top + frameOffset.top,
             bottom: rect.bottom + frameOffset.top,
             width: rect.width,
-            height: rect.height
+            height: rect.height,
+            devicePixelRatio: win.devicePixelRatio || 1
         };
     }
 
     var element = document.querySelectorAll(elementSelector)[0];
     if (element) {
         var frameOffset = computeFrameOffset(window);
-        var elementRect = computeElementRect(element, frameOffset);
+        var elementRect = computeElementRect(element, frameOffset, window);
 
         return elementRect;
     }
